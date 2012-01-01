@@ -1,0 +1,197 @@
+{% extends "base-gmap.html" %}
+
+{% block headscripts %}
+
+{{ block.super }}
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+<script type="text/javascript" src="http://www.google.com/jsapi"></script>
+<!--
+<script src="http://api.timepedia.org/gviz/"></script>
+-->
+<script src="http://gwt-chronoscope.googlecode.com/svn/gviz/chronoscope.js"></script>
+<script type="text/javascript">
+      google.load('visualization', '1');
+</script>
+
+<script charset="UTF-8" type="text/javascript">
+
+  // floodrecs and paramlist are passed in using Django template.
+  var floodrecs = {{ floodrecs }};
+  var paramlist = {{ paramlist }};
+  var rean = "{{ rean }}";
+  var latlng = "{{ latlng }}";
+  var mkrref = {{ mkrref }};  // {'A':0,'B':1,...}
+  var visualizationd;
+  var visdTitle;
+  var selectedFlood = null;
+  var data; // The return DataTable  - Google Visualization object
+  var chrono;
+  var chronoStyle;
+
+  $(document).ready(function(){
+      $("#reansel").val(rean).attr("selected","selected");
+  });
+
+  function draw20crVis(lat, lng, start, end) {
+      var params = [];for (p in paramlist){ params.push(paramlist[p].id); }
+      var queryText = "rean="+rean+"&lat="+lat+"&lng="+lng+"&start="+start+"&end="+end+"&fi="+params.join();
+      var queryUri = "/getmetdata?" + queryText;
+      var query =  new google.visualization.Query(queryUri);
+      query.send(handleQuery);
+      vis2Title = queryUri;
+      document.getElementById('visualization').innerHTML = queryUri;
+      var components = [
+         {type: 'csv', datasource: queryUri}];
+      google.visualization.drawToolbar(document.getElementById('download'), components);
+  }
+
+  function handleQuery(response) {
+      if (response.isError()) {
+        alert('Error in query: ' + response.getMessage() + ' ' + response.getDetailedMessage());
+        return;
+      }
+     document.getElementById("visualization").innerHTML = "";
+     chrono = new chronoscope.ChronoscopeVisualization(document.getElementById("visualization"));
+     data = response.getDataTable();     
+     // i.e. a google.visualization.DataTable() is returned.
+     // So we can mofify it a little before displaying.
+
+     data.insertColumn(1,'string','Markers');
+     var matches = data.getFilteredRows([{column:0,minValue: new Date(selectedFlood.began),
+       maxValue: new Date(selectedFlood.ended)}]);
+     var markStart = matches[0];
+     var markEnd = matches.pop();
+     data.setCell(markStart,1,"began " + selectedFlood.began);
+     data.setCell(markEnd,1,"ended " + selectedFlood.ended);
+     // See http://code.google.com/p/gwt-chronoscope/wiki/GViz
+     var zoomStart = new Date(selectedFlood.began);
+     zoomStart.setMonth(zoomStart.getMonth() - 1);
+     var zoomEnd = new Date(selectedFlood.ended);
+     zoomEnd.setMonth(zoomEnd.getMonth() + 1);  
+     chronoStyle = { legend: "true", overview: "true", 
+      zoomStartTime: zoomStart, zoomEndTime: zoomEnd};
+     chrono.draw(data, chronoStyle);
+  }
+
+
+  function formatDate( dt ) {
+    
+    y = dt.getFullYear();
+    m = dt.getMonth() + 1;
+    d = dt.getDate();
+    return y + "-" + m + "-" + d;
+  }
+
+  function selectEntry( mkr ) {
+    var fld = floodrecs[mkrref[mkr]];
+    // highlight the row
+    $(".fld_tr").css("background-color","white");
+    $("#fld_"+mkr).css("background-color","gray");
+    selectedFlood = fld;
+    var lat = fld.centroid_y;
+    var lng = fld.centroid_x;
+    var start_date = new Date(fld.began);
+    start_date.setMonth(start_date.getMonth() - 12); 
+    var end_date = new Date(fld.ended);
+    end_date.setMonth(end_date.getMonth() + 2);
+    var start_txt = formatDate(start_date);
+    var end_txt = formatDate(end_date);
+    draw20crVis(lat, lng, start_txt, end_txt);
+  }
+
+  function filterParams() {
+    var selectedParams = [];
+    for (p in paramlist){ 
+     if( $("#cb_" + paramlist[p].name).attr("checked")){
+       selectedParams.push(paramlist[p].name); 
+     }
+    }
+    if(data && chrono){
+      // which columns to show?
+      var selectedCols = [0,1];
+      for (c = 2; c < data.getNumberOfColumns(); c++){
+        var label = data.getColumnLabel(c);
+        if( selectedParams.indexOf(label) != -1){
+          selectedCols.push(c);
+	}
+      }
+      var view =  new google.visualization.DataView(data);
+      view.setColumns(selectedCols);
+      document.getElementById("visualization").innerHTML = "";
+      chrono.draw(view, chronoStyle);    
+    }
+  }
+
+</script>
+{% endblock headscripts %}
+
+{% block content %}
+<!-- <h1>Data results for {{locationName}}</h1> -->
+
+<div class="row">
+  <div class="grid span12">
+    <div class="row">
+      <div class="span6">
+	  <img src="http://maps.googleapis.com/maps/api/staticmap?center={{ map_centre }}{{ markers }}&zoom=6&size=330x280&sensor=false" />  
+      </div>
+      <div class="span6">
+        <h3>Floods in this location</h3>
+        <table>
+          <tr>
+            <th>mark</th>
+            <th>began</th>
+            <th>days</th>
+            <th>deaths</th>
+            <th>displaced</th>
+          </tr>
+	  {% for flood in floodrecs %}
+          <tr id="fld_{{ flood.id }}" class="fld_tr" onclick="selectEntry('{{ flood.id }}')" >
+            <td><input type="button" value="{{ flood.id }}" onclick="selectEntry('{{ flood.id }}')" /></td>
+            <td>{{ flood.began }}</td>
+            <td>{{ flood.days }}</td>
+            <td>{{ flood.deaths }}</td>
+            <td>{{ flood.displaced }}</td>
+          </tr>
+          {% endfor %}
+        </table>
+      </div>
+    </div>
+    <div class="row">
+      <div class="span12">
+        <div class="media-grid">
+        <div style="height: 400px; width: 1000px; margin: 3px; border: 1px solid rgb(0, 0, 0); position: relative;" id="visualization">
+</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <div class="span4">
+    <h3>Plot</h3>
+    <form id="reanform" class="form-stacked" method="get" > 
+      <select id="reansel" name="reanalysis" onchange="$('#reanform').submit()">
+	<option value="ncep">NCEP</option>
+	<option value="20cr">20CR</option>
+      </select>
+      <input type="hidden" name="latlng" value="{{ latlng }}" />
+      <div id="download"></div>
+     <table>
+      {% for param in paramlist %}
+      <tr>
+        <td><input type="checkbox" id="cb_{{ param.name }}" checked onchange="filterParams()" /> {{ param.en }}</td>
+      </tr>
+      {% endfor %}
+      </table>
+      <!-- <input style="margin-top:1em" type="submit" class="btn" value="&raquo;"> -->
+
+    </form>
+  </div>
+</div>
+{% endblock content %}
+
+
+{% block scripts %}
+<script charset="UTF-8" type="text/javascript">
+  // Should draw chart.
+</script>
+{% endblock scripts %}

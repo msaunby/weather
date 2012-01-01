@@ -1,0 +1,25 @@
+{% extends "base-gmap.html" %}
+
+{% block content %}
+<form class="form-stacked row">
+  
+  <div class="input span16">
+      <input type="text" placeholder="dd/mm/yyyy">
+      to
+      <input type="text" placeholder="dd/mm/yyyy">
+      
+      <input type="submit" value="search" class=" btn primary disabled" />
+      
+  </div>
+
+  <div id="mapc" class="span16">
+    <div id="map"></div>
+  </div>
+  
+</form>
+
+{% endblock content %}
+
+{% block scripts %}
+<script type="text/javascript" src="/js/index-gmap.js" ></script>
+{% endblock scripts %}

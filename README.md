@@ -1,9 +1,14 @@
-# Outcomes
+# This code started as a Random Hacks of Kindness project in Oxford, UK 3/4 December 2011
 
-* Daily Met Office data leading to flood events as an interactive map/spreadsheet
-* Flood prediction model for tropics to be driven by forecasts
+# Aim
 
-# Requirements
+ * To create a useful tool for developing world scientists developing flood prediction models
 
-* model data as CSV for flood locations
-* interactive map - select region or flood event
+# The data
+
+ * Historical weather data for the entire globe is available from "reanalysis"
+
+ * Records of major floods are collated at the Dartmouth Flood Observatory
+
+
+

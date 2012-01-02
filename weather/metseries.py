@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# Michael Saunby.  December 2011.
 #
 
 from datetime import datetime, tzinfo, timedelta, date
@@ -56,8 +55,10 @@ class GetMetSeries(webapp.RequestHandler):
     def getArgs(self):
       global lat, lng, fi, dataurl #start, end
       self.tqx=self.request.get("tqx")
-      lat = float(self.request.get("lat"))
-      lng = float(self.request.get("lng"))
+      #lat = float(self.request.get("lat"))
+      #lng = float(self.request.get("lng"))
+      self.x = int(self.request.get("x"))
+      self.y = int(self.request.get("y"))
       fi = self.request.get("fi")
       year_start = self.request.get("yr0")
       rean = self.request.get("rean")
@@ -72,8 +73,9 @@ class GetMetSeries(webapp.RequestHandler):
       return
 
     def download(self):
-        global lat, lng, dataurl
-        (x,y) = toXY(lat,lng)
+        global dataurl
+        #(x,y) = toXY(lat,lng)
+        (x,y) = (self.x,self.y)
         #print "fetching", dataurl, fi, x, y
 
         # for 1970 test time is 1490184.0 to 1498941.0

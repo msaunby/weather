@@ -16,11 +16,11 @@
 <script charset="UTF-8" type="text/javascript">
 
   // floodrecs and paramlist are passed in using Django template.
-  var floodrecs = {{ floodrecs }};
-  var paramlist = {{ paramlist }};
-  var rean = "{{ rean }}";
-  var latlng = "{{ latlng }}";
-  var mkrref = {{ mkrref }};  // {'A':0,'B':1,...}
+  var floodrecs = {{ floodrecs|safe }};
+  var paramlist = {{ paramlist|safe }};
+  var rean = "{{ rean|safe }}";
+  var latlng = "{{ latlng|safe }}";
+  var mkrref = {{ mkrref|safe }};  // {'A':0,'B':1,...}
   var visualizationd;
   var visdTitle;
   var selectedFlood = null;

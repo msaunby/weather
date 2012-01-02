@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# Michael Saunby.  August 2011.
 #
 # Purpose:
 # Convert coords to/from 20th Century reanalysis grid.

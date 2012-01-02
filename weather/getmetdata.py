@@ -1,6 +1,4 @@
 #!/usr/bin/python
-# Michael Saunby. December 2011.
-# $$
 #
 # Returns reanalysis data for timeseries at specified lat/lng.
 # Make async calls for JSON data and return a single merged file.
@@ -17,6 +15,7 @@ import StringIO
 from gviz_api import DataTable
 from datetime import datetime, timedelta
 from decimal import Decimal
+from coords20cr import toXY
 
 def handle_result(rpc,yr):
     result = rpc.get_result()
@@ -103,13 +102,16 @@ class GetMetData(webapp.RequestHandler):
         return (merged[0],merged[1:])
 
     def getArgs(self):
-        global lat, lng, fi, start, end, rean
+        global fi, start, end, rean
         # treat all as strings
         # Trailing ';' from google charts toolbar messes
         # with google gviz_api
         self.tqx=self.request.get("tqx").strip(';')
         lat = self.request.get("lat")
         lng = self.request.get("lng")
+        # These x,y coords are only good for
+        # 192 x 94 regular global grids
+        (self.x,self.y) = toXY(float(lat), float(lng))
         fi = self.request.get("fi")
         start = self.request.get("start")
         end = self.request.get("end")
@@ -131,7 +133,7 @@ class GetMetData(webapp.RequestHandler):
                 # 60 secs is max, 5 secs is default see 
                 # http://code.google.com/appengine/docs/python/urlfetch/asynchronousrequests.html
                 rpc.callback = create_callback(rpc, yr)
-                url =  host + "/metseries?tqx=out:csv&rean=%s&lat=%s&lng=%s&fi=%s&yr0=%s" % (rean,lat,lng,q,yr)
+                url =  host + "/metseries?tqx=out:csv&rean=%s&x=%s&y=%s&fi=%s&yr0=%s" % (rean,self.x,self.y,q,yr)
                 urlfetch.make_fetch_call(rpc, url)
                 rpcs.append(rpc)
                 pass

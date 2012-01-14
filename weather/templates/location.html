@@ -1,14 +1,15 @@
 {% extends "base-gmap.html" %}
 
+
 {% block headscripts %}
 
 {{ block.super }}
-<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
-<script type="text/javascript" src="http://www.google.com/jsapi"></script>
+
+<script src="http://gwt-chronoscope.googlecode.com/svn/gviz/chronoscope.js"></script>
 <!--
 <script src="http://api.timepedia.org/gviz/"></script>
 -->
-<script src="http://gwt-chronoscope.googlecode.com/svn/gviz/chronoscope.js"></script>
+<script type="text/javascript" src="http://www.google.com/jsapi"></script>
 <script type="text/javascript">
       google.load('visualization', '1');
 </script>
@@ -27,6 +28,12 @@
   var data; // The return DataTable  - Google Visualization object
   var chrono;
   var chronoStyle;
+  var loadTxt = "Loading...<image alt='loading...' src='/loading11.gif' style='margin-left:auto;margin-right:auto;display:block;'/>";
+
+  // activate bootstrap-tabs plugin. 
+  $(function () {
+    $('.tabs').tabs()
+  });
 
   $(document).ready(function(){
       $("#reansel").val(rean).attr("selected","selected");
@@ -39,7 +46,7 @@
       var query =  new google.visualization.Query(queryUri);
       query.send(handleQuery);
       vis2Title = queryUri;
-      document.getElementById('visualization').innerHTML = queryUri;
+      document.getElementById('visualization').innerHTML = loadTxt + " " + queryUri;
       var components = [
          {type: 'csv', datasource: queryUri}];
       google.visualization.drawToolbar(document.getElementById('download'), components);
@@ -129,8 +136,6 @@
 <!-- <h1>Data results for {{locationName}}</h1> -->
 
 <div class="row">
-  <div class="grid span12">
-    <div class="row">
       <div class="span6">
 	  <img src="http://maps.googleapis.com/maps/api/staticmap?center={{ map_centre }}{{ markers }}&zoom=6&size=330x280&sensor=false" />  
       </div>
@@ -155,17 +160,6 @@
           {% endfor %}
         </table>
       </div>
-    </div>
-    <div class="row">
-      <div class="span12">
-        <div class="media-grid">
-        <div style="height: 400px; width: 1000px; margin: 3px; border: 1px solid rgb(0, 0, 0); position: relative;" id="visualization">
-</div>
-        </div>
-      </div>
-    </div>
-  </div>
-  
   <div class="span4">
     <h3>Plot</h3>
     <form id="reanform" class="form-stacked" method="get" > 
@@ -187,11 +181,37 @@
     </form>
   </div>
 </div>
+
+    <div class="row">
+    <div class="span16">
+
+<ul class="tabs" data-tabs="tabs">
+  <li class="active"><a href="#visualization">Graph</a></li>
+  <li><a href="#about">About</a></li>
+</ul>
+ 
+<div class="pill-content">
+  <div id="about" style="height: 400px; width: 940px; margin: 5px; border: 0px;">
+<h3>Purpose</h3>
+<p>
+This website will hopefully help scientists and engineers in developing countries design and test flood forecast models.  We have brought together in an easily accessible form records of past floods and the weather that preceded the flood.   Read more about the aims of this project on the Random Hacks of Kindness wiki.
+</p>
+<h3>Data</h3>
+<p>
+Details of floods was obtained from the Dartmouth Flood Observatory at the University of Colorado. 
+Historical weather data comes from the NCEP and 20th Century reanalyses hosted by the NOAA Earth System Research Laboratory.</p>
+<h3>Technical notes</h3>
+<p>
+The source code for the website - which run on the Google Appengine cloud service - is at https://github.com/msaunby/weather. Weather data is from reanalysis [Wikipedia article] rather than actual observations. Flood records are stored in this Google Fusion Table (table ID 2358653)</p>
+</div>
+  <div class="active" style="height: 400px; width: 940px; margin: 3px; border: 1px solid gray; position: relative;" id="visualization"></div>
+</div>
+
+</div>
+</div>
+
+  
+</div>
 {% endblock content %}
 
 
-{% block scripts %}
-<script charset="UTF-8" type="text/javascript">
-  // Should draw chart.
-</script>
-{% endblock scripts %}

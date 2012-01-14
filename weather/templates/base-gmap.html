@@ -11,13 +11,16 @@
     <![endif]-->
     {% block headscripts %}
     <!--head scripts-->
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+    <script src="http://twitter.github.com/bootstrap/1.4.0/bootstrap-tabs.js"></script>
+    <script type="text/javascript" src="http://maps.googleapis.com/maps/api/js?sensor=false"></script>
     {% endblock headscripts %}
   </head>
 
   <body>
     {% block header %}
     <div class="hero-unit">
-      <h1>FloodSource</h1>
+      <h1 onclick="document.location='/'" >FloodSource</h1>
       <p>Created at Random Hacks of Kindness - <a href="https://twitter.com/#!/RHoKOxford">Oxford</a></p>
     </div>
     {% endblock header %}
@@ -31,12 +34,6 @@
     {% endblock footer %}
     
     
-    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
-    <script type="text/javascript" src="http://maps.googleapis.com/maps/api/js?sensor=false"></script>
-    <script type="text/javascript" src="http://www.google.com/jsapi"></script>
-    <script type="text/javascript">
-      google.load('visualization', '1', {packages: ['corechart']});
-    </script>   
 
     {% block scripts %}
     {% endblock scripts %}

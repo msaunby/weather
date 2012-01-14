@@ -10,10 +10,6 @@ handlers:
   static_files: favicon.ico
   upload: favicon.ico
 
-- url: /_ah/mail/.+
-  script: handle_incoming_mail.py
-  login: admin
-
 - url: /css/(.*\.css)
   static_files: css/\1
   upload: css/(.*\.css)
@@ -21,6 +17,10 @@ handlers:
 - url: /js/(.*)
   static_files: js/\1
   upload: js/(.*)
+
+- url: /(.*\.gif)
+  static_files: \1
+  upload: (.*\.gif)
 
 - url: /.*
   script: floodsource.py

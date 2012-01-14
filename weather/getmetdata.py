@@ -35,6 +35,10 @@ def create_callback(rpc,yr):
     return lambda: handle_result(rpc,yr)
 
 class GetMetData(webapp.RequestHandler):
+    def post(self):
+        self.get()
+        return
+
     def get(self):
         self.getArgs()
         #download_host = self.request.host_url

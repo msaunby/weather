@@ -13,8 +13,14 @@ from decimal import *
 import logging
 
 def dDate(time, dataset):
-    date = from_udunits(time, dataset['time'].units)
-    #date = from_udunits(time, 'hours since 1800-1-1 00:00:0.0')
+    time_units =  dataset['time'].units
+    #logging.debug(time_units)
+    if time_units == "hours since 1-1-1 00:00:0.0":
+        time_units = "hours since 1800-1-1 00:00:0.0"
+        #logging.debug("fixed " + time_units)
+        time = time - (657438.0 * 24)
+        pass
+    date = from_udunits(time, time_units)
     return date
 
 
